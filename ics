@@ -1,0 +1,7 @@
+#!/bin/bash
+IFACE=$1;
+IP=`ifconfig $IFACE | grep "inet addr" | awk '{ print $2 }' | awk -F: '{ print $2 }'`;
+if [[ ! `lsmod | grep ipt_MASQUERADE` ]]; then modprobe ipt_MASQUERADE; fi
+iptables -F; iptables -t nat -F; iptables -t mangle -F
+iptables -t nat -A POSTROUTING -o $IFACE -j SNAT --to $IP
+echo 1 > /proc/sys/net/ipv4/ip_forward
